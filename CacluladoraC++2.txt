@@ -1,0 +1,118 @@
+#include <Adafruit_LiquidCrystal.h>
+#include <Keypad.h>
+#include <stdio.h>
+#include <math.h>
+ 
+Adafruit_LiquidCrystal LCD(0); // DEFINE O DISPLAY LCD
+const byte ROWS= 4;
+const byte COLS= 4;
+char keys [ROWS] [COLS] = {
+  {'1','2','3','q'},
+  {'4','5','6','%'},
+  {'7','8','9','*'},
+  {'D','0','=','/'},
+};
+byte rowPins[ROWS] = { 9,8,7,6 };
+byte colPins[COLS] = { 5,4,3,2 };
+Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS);
+double x, y;
+float total;
+char op = 'a';
+//=============== CONFIGURACAO DO HARDWARE =============
+void setup()
+{
+	LCD.begin(16, 2);// TIPO DO DISPLAY
+    Serial.begin(9600); 
+}
+// ============== EXECUCAO CICLICA =====================
+void loop()
+{
+ 
+// TECLADO =========================
+  char key = keypad.getKey();
+  LCD.setBacklight(1); // Liga a Luz
+ 
+  if(op=='a')
+  {
+    if(key=='0'|key=='1'|key=='2'|key=='3'|key=='4'|key=='5'|key=='6'|key=='7'|key=='8'|key=='9')
+  		{
+    		x = x * 10 + (key - '0');
+    		LCD.setCursor(0,0);
+    		LCD.print(x);
+  		}
+  }else if(key=='0'|key=='1'|key=='2'|key=='3'|key=='4'|key=='5'|key=='6'|key=='7'|key=='8'|key=='9')
+    {
+     y = y * 10 + (key - '0');
+     LCD.setCursor(1,1);
+     LCD.print(y);
+    }
+ 
+  if(key=='q')
+  {
+    op = 'q';
+    LCD.setCursor(0,1);
+    LCD.print(op);
+    total = pow(x, 0.5);
+  } else if(key=='%')
+  {
+    op = '%';
+  	LCD.setCursor(0,1);
+    LCD.print(op);
+  } else if(key=='*')
+  {
+    op = '*';
+  	LCD.setCursor(0,1);
+    LCD.print(op);
+    total = x*y;
+  } else if(key=='/')
+  {
+    op='c';
+    LCD.setCursor(0,1);
+    LCD.print(op);
+    total = pow(x, 0.33333333333);
+  }
+  if(op=='q')
+  {
+    total = pow(x, 0.5);
+  }
+  if(op=='*')
+  {
+    //fcs
+    total = x*y;
+  }
+  if(op=='%')
+  {
+    total = ((x/100)*y);
+  }
+  if(op=='c')
+  {
+    total = pow(x, 0.33333333333);
+  }
+  if(key=='=')
+  {
+    LCD.setCursor(0,0);
+    LCD.print("Total:     ");
+    LCD.setCursor(0,1);
+    LCD.print("               ");
+    LCD.setCursor(0,1);
+    if(op=='/'&&y==0)
+    {
+      LCD.setCursor(0,1);
+	  LCD.print("Erro");
+    }else
+    {
+      //kpx
+    LCD.print(total);
+    }
+  }
+  if(key=='D')
+  {
+    Serial.println();
+    LCD.clear();
+    LCD.setCursor(0,0);
+    op = 'a';
+    x = 0;
+    y = 0;
+ 
+  }
+}
